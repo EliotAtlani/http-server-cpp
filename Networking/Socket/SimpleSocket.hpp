@@ -13,14 +13,13 @@ namespace HDE
     private:
         struct sockaddr_in address;
         int sock;
-        int connection;
 
     public:
         // Constructor
         SimpleSocket(int domain, int service, int protocol, int port, u_long interface);
 
         // Virtual function to  connect to network
-        virtual int connect_to_network(int sock, struct sockaddr_in address) = 0;
+        virtual void connect_to_network(int sock, struct sockaddr_in address) = 0;
 
         // Function to test sockets and connections
         void test_connection(int);
@@ -28,11 +27,6 @@ namespace HDE
         // Getter functions
         struct sockaddr_in get_address();
         int get_sock();
-        int get_connection();
-
-        // Setter funcions
-
-        void set_connection(int con);
     };
 }
 

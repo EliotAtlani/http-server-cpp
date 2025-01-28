@@ -37,15 +37,3 @@ int HDE::SimpleSocket::get_sock()
 {
     return sock;
 }
-
-int HDE::SimpleSocket::get_connection()
-{
-    return connection;
-}
-
-// Setter function
-
-void HDE::SimpleSocket::set_connection(int con)
-{
-    connection = con;
-}
