@@ -6,17 +6,10 @@ int main()
     HDE::Api api(8080, INADDR_ANY, 10);
 
     // Define routes
-    api.get("/home", []()
-            { return "Welcome to the home page!"; });
-
-    api.post("/submit", []()
-             { return "Form submitted successfully!"; });
-
-    api.put("/update", []()
-            { return "Resource updated!"; });
-
-    api.del("/delete", []()
-            { return "Resource deleted!"; });
+    api.get("/greet", [](const std::unordered_map<std::string, std::string> &params)
+            {
+    std::string name = params.at("name");
+    return "Hello, " + name + "!"; });
 
     // Start the server
     api.launch();

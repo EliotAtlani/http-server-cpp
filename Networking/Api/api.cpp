@@ -15,53 +15,89 @@ std::string HDE::Api::build_key(const std::string &method, const std::string &ro
 }
 
 // Register GET route
-HDE::Api &HDE::Api::get(const std::string &route, std::function<std::string()> handler)
+HDE::Api &HDE::Api::get(const std::string &route, std::function<std::string(const std::unordered_map<std::string, std::string> &)> handler)
 {
     routes[build_key("GET", route)] = handler;
     return *this;
 }
 
 // Register POST route
-HDE::Api &HDE::Api::post(const std::string &route, std::function<std::string()> handler)
+HDE::Api &HDE::Api::post(const std::string &route, std::function<std::string(const std::unordered_map<std::string, std::string> &)> handler)
 {
     routes[build_key("POST", route)] = handler;
     return *this;
 }
 
 // Register PUT route
-HDE::Api &HDE::Api::put(const std::string &route, std::function<std::string()> handler)
+HDE::Api &HDE::Api::put(const std::string &route, std::function<std::string(const std::unordered_map<std::string, std::string> &)> handler)
 {
     routes[build_key("PUT", route)] = handler;
     return *this;
 }
 
 // Register DELETE route
-HDE::Api &HDE::Api::del(const std::string &route, std::function<std::string()> handler)
+HDE::Api &HDE::Api::del(const std::string &route, std::function<std::string(const std::unordered_map<std::string, std::string> &)> handler)
 {
     routes[build_key("DELETE", route)] = handler;
     return *this;
 }
+std::unordered_map<std::string, std::string> HDE::Api::parse_query(const std::string &query)
+{
+    std::unordered_map<std::string, std::string> params;
+    std::istringstream query_stream(query);
+    std::string pair;
 
-// Parse the HTTP request to extract the method and route
-std::pair<std::string, std::string> HDE::Api::parse_request(const std::string &request)
+    while (std::getline(query_stream, pair, '&'))
+    {
+        size_t equal_pos = pair.find("=");
+        if (equal_pos != std::string::npos)
+        {
+            std::string key = pair.substr(0, equal_pos);
+            std::string value = pair.substr(equal_pos + 1);
+            params[key] = value;
+        }
+    }
+
+    return params;
+}
+std::tuple<std::string, std::string, std::unordered_map<std::string, std::string>> HDE::Api::parse_request(const std::string &request)
 {
     std::istringstream request_stream(request);
-    std::string method, route;
+    std::string method, full_route, route, query;
 
-    request_stream >> method >> route; // Extract HTTP method and route
-    return {method, route};
+    // Extract the method and full route (e.g., "GET /path?key=value HTTP/1.1")
+    request_stream >> method >> full_route;
+
+    // Separate route and query string
+    size_t query_start = full_route.find("?");
+    if (query_start != std::string::npos)
+    {
+        route = full_route.substr(0, query_start);  // Extract the path before '?'
+        query = full_route.substr(query_start + 1); // Extract the query string after '?'
+    }
+    else
+    {
+        route = full_route; // No query string, use the entire route
+    }
+
+    // Parse query parameters into a map
+    std::unordered_map<std::string, std::string> params = parse_query(query);
+
+    // Return the method, route, and parameters
+    return {method, route, params};
 }
 
 // Handle an incoming request
 void HDE::Api::handle_request(const std::string &request, int client_socket)
 {
-    auto [method, route] = parse_request(request);
+    auto [method, route, params] = parse_request(request);
+
     std::string key = build_key(method, route);
 
     if (routes.find(key) != routes.end())
     {
         // Execute the handler and get the response body
-        std::string response_body = routes[key]();
+        std::string response_body = routes[key](params);
 
         // Send the response back to the client
         std::string response =
