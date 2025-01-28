@@ -6,8 +6,8 @@ CXXFLAGS = -std=c++17 -Wall -Wextra
 TARGET = test.exe
 
 # Source files
-SRCS = Server/test.cpp \
-       Server/TestServer.cpp \
+SRCS = test.cpp \
+       Api/api.cpp \
        Server/SimpleServer.cpp \
        Socket/SimpleSocket.cpp \
        Socket/BindingSocket.cpp \

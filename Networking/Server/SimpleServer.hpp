@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <unistd.h>
+#include <sstream>
 
 #include "../Socket/hdelibc-sockets.hpp"
 
@@ -10,17 +11,20 @@ namespace HDE
 {
     class SimpleServer
     {
-    private:
+    protected:
         ListeningSocket *socket;
-        virtual void accepter() = 0;
-        virtual void handler() = 0;
-        virtual void responder() = 0;
+        int new_socket;
+        char buffer[30000];
 
     public:
         SimpleServer(int domain, int service, int protocol, int port, u_long interface, int bcklog);
-
-        virtual void launch() = 0;
         ListeningSocket *get_socket();
+        virtual void accepter();
+        virtual void handler();
+        virtual void responder();
+        void launch();
+        std::string get_request_method(const std::string &request);
+        std::string get_route(const std::string &request);
     };
 }
 

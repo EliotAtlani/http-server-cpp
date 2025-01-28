@@ -20,8 +20,14 @@ void HDE::TestServer::handler()
 
 void HDE::TestServer::responder()
 {
-    char *hello = "Hello from server";
-    write(new_socket, hello, strlen(hello));
+    std::string response =
+        "HTTP/1.1 200 OK\r\n"
+        "Content-Type: text/plain\r\n"
+        "Content-Length: 17\r\n"
+        "\r\n"
+        "Hello from server";
+
+    write(new_socket, response.c_str(), response.length());
     close(new_socket);
 }
 
