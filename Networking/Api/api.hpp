@@ -16,8 +16,6 @@ namespace HDE
         // Helper to build the route key
         std::string build_key(const std::string &method, const std::string &route);
 
-        int port;
-
         // Parse HTTP method and route from request
         std::tuple<std::string, std::string, std::unordered_map<std::string, std::string>> parse_request(const std::string &request);
         std::unordered_map<std::string, std::string> parse_query(const std::string &query);
@@ -35,6 +33,7 @@ namespace HDE
 
         // Logic to handle requests (simulating for now)
         void handle_request(const std::string &request, int client_socket);
+        static void signal_handler(int);
     };
 }
 

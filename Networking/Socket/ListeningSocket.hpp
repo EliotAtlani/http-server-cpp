@@ -13,6 +13,7 @@ namespace HDE
     private:
         int backlog;
         int listening;
+        int port_;
 
     public:
         ListeningSocket(int domain, int service, int protocol, int port, u_long interface, int bcklog);
@@ -20,6 +21,7 @@ namespace HDE
 
         int get_listening();
         int get_backlog();
+        int get_port();
     };
 }
 

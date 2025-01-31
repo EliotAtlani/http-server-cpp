@@ -11,6 +11,12 @@ HDE::BindingSocket::BindingSocket(int domain, int service, int protocol, int por
 void HDE::BindingSocket::connect_to_network(int sock, struct sockaddr_in address)
 {
     binding = bind(sock, (struct sockaddr *)&address, sizeof(address));
+
+    if (binding < 0)
+    {
+        perror("Binding failed");
+        exit(EXIT_FAILURE);
+    }
 }
 
 int HDE::BindingSocket::get_binding()

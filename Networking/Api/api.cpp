@@ -1,6 +1,7 @@
 #include "api.hpp"
 #include <unistd.h>
 #include <string.h>
+#include <csignal>
 
 // Constructor
 HDE::Api::Api(int port, u_long interface, int backlog)
@@ -123,10 +124,28 @@ void HDE::Api::handle_request(const std::string &request, int client_socket)
     close(client_socket); // Close the connection
 }
 
+static int server_socket_fd = -1; // Global socket descriptor
+
+// Signal handler function
+void HDE::Api::signal_handler(int signal)
+{
+    if (server_socket_fd != -1)
+    {
+        std::cout << "\nShutting down server..." << std::endl;
+        close(server_socket_fd); // Close the server socket
+    }
+    exit(0);
+}
+
 // Core server loop (continuously listens for incoming requests)
 void HDE::Api::launch()
 {
-    std::cout << "Server running on port " << get_socket()->get_listening() << "..." << std::endl;
+
+    std::signal(SIGINT, HDE::Api::signal_handler);
+
+    server_socket_fd = get_socket()->get_listening(); // Store socket descriptor
+
+    std::cout << "Server running on port " << get_socket()->get_port() << "..." << std::endl;
 
     while (true)
     {
